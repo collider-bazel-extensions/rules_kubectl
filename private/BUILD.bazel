@@ -1,0 +1,19 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@rules_python//python:defs.bzl", "py_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "launcher.py",
+    "install.sh.tmpl",
+    "health_check.sh.tmpl",
+])
+
+py_binary(
+    name = "launcher",
+    srcs = ["launcher.py"],
+    main = "launcher.py",
+)
+
+bzl_library(name = "kubectl_apply", srcs = ["kubectl_apply.bzl"])
+bzl_library(name = "kubectl_apply_health_check", srcs = ["kubectl_apply_health_check.bzl"])

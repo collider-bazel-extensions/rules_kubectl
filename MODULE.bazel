@@ -1,0 +1,23 @@
+"""rules_kubectl — kubectl_apply as an itest_service for Bazel test compositions."""
+
+module(
+    name = "rules_kubectl",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_python", version = "1.7.0")
+
+# ---- dev-only: rules_kind + rules_itest for the in-tree smoke test ----------
+# Consumers do NOT inherit any of these. The smoke test composes a kind
+# cluster, then applies a tiny manifest via the rule under test and asserts
+# the resulting Deployment lands.
+bazel_dep(name = "rules_itest", version = "0.0.52", dev_dependency = True)
+bazel_dep(name = "rules_shell", version = "0.8.0", dev_dependency = True)
+bazel_dep(name = "rules_kind", version = "0.1.2", dev_dependency = True)
+git_override(
+    module_name = "rules_kind",
+    remote = "https://github.com/collider-bazel-extensions/rules_kind",
+    commit = "b9c4670646f8e3772816f56a048e311d5310a763",  # v0.1.2 — adds k8s 1.32
+)
