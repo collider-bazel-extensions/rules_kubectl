@@ -13,6 +13,7 @@ exec "${RUNFILES_DIR}/_main/{LAUNCHER}" \
   --mode install \
   --kubeconfig-env "{KUBECONFIG_ENV}" \
   --namespace "{NAMESPACE}" \
+  {APPLY_NS_FLAG} \
   {CREATE_NS_FLAG} \
   {SERVER_SIDE_FLAG} \
   --wait-timeout "{WAIT_TIMEOUT}" \

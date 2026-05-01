@@ -43,7 +43,7 @@ kubectl can run. Validated on Linux x86\_64 in CI.
 ## Installation
 
 ```python
-bazel_dep(name = "rules_kubectl", version = "0.1.0")
+bazel_dep(name = "rules_kubectl", version = "0.2.0")
 ```
 
 That's it — no extension, no toolchain registration, no `use_repo`.
@@ -165,6 +165,7 @@ kubectl_apply(
 |---|---|---|---|
 | `manifests` | `label_list` of `.yaml`/`.yml` | required | One or more YAML files. Applied in order via repeated `-f`. |
 | `namespace` | `string` | `""` | Passed to `kubectl apply -n` and to wait commands. Per-resource `metadata.namespace` in the manifest takes precedence. |
+| `apply_namespace_flag` | `bool` | `True` | Pass `-n <namespace>` to `kubectl apply`. Set `False` for **multi-namespace YAML**. See [Multi-namespace manifests](#multi-namespace-manifests). |
 | `create_namespace` | `bool` | `False` | Apply `Namespace/<namespace>` first, idempotent. |
 | `server_side` | `bool` | `True` | `--server-side=true --validate=false`. |
 | `kubeconfig_env` | `string` | `"KUBECONFIG"` | Env var holding the kubeconfig path. |
@@ -173,6 +174,29 @@ kubectl_apply(
 | `wait_for_crds` | `string_list` | `[]` | CRD names; runs `kubectl get crd`. |
 | `wait_timeout` | `string` | `"300s"` | Per-wait timeout. |
 | `retry_attempts` | `int` | `2` | Retries on apply failure with 5s sleep. |
+
+#### Multi-namespace manifests
+
+Some upstream installs (Tekton's `release.yaml`, KEDA's `keda-operator-auth-reader` RoleBinding, etc.) carry resources across more than one namespace in a single YAML file. kubectl rejects this when `-n` is passed:
+
+```
+the namespace from the provided object 'kube-system' does not match the namespace 'keda'
+```
+
+Set `apply_namespace_flag = False` to drop the `-n` flag from the apply call. Each resource's own `metadata.namespace` then stands. The `namespace` attribute is still used as the default for the wait commands (Deployment / rollout names you list there are looked up in `<namespace>`):
+
+```python
+kubectl_apply(
+    name = "tekton_install_bin",
+    manifests = ["@rules_tekton//private/manifests:tekton.yaml"],
+    namespace = "tekton-pipelines",
+    apply_namespace_flag = False,                        # <-- multi-ns
+    wait_for_deployments = [
+        "tekton-pipelines-controller",
+        "tekton-pipelines-webhook",
+    ],
+)
+```
 
 ### `kubectl_apply_health_check`
 

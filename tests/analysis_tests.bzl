@@ -23,7 +23,27 @@ def kubectl_apply_test_suite(name):
         tags = ["manual"],
     )
     _has_executable_test(name = name + "_executable", target_under_test = ":" + name + "_subject")
-    native.test_suite(name = name, tests = [":" + name + "_executable"])
+
+    # Cover the multi-namespace YAML path: apply_namespace_flag = False.
+    kubectl_apply(
+        name = name + "_multi_ns_subject",
+        manifests = ["manifest.yaml"],
+        namespace = "primary-ns",
+        apply_namespace_flag = False,
+        tags = ["manual"],
+    )
+    _has_executable_test(
+        name = name + "_multi_ns_executable",
+        target_under_test = ":" + name + "_multi_ns_subject",
+    )
+
+    native.test_suite(
+        name = name,
+        tests = [
+            ":" + name + "_executable",
+            ":" + name + "_multi_ns_executable",
+        ],
+    )
 
 def kubectl_apply_health_check_test_suite(name):
     kubectl_apply_health_check(

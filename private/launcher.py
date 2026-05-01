@@ -79,9 +79,10 @@ def _ensure_namespace(kubectl: str, kubeconfig: str, ns: str,
 
 
 def _apply(kubectl: str, kubeconfig: str, manifests: list[str], namespace: str,
-           server_side: bool, retry_attempts: int, env: dict[str, str]) -> int:
+           apply_namespace_flag: bool, server_side: bool,
+           retry_attempts: int, env: dict[str, str]) -> int:
     cmd = [kubectl, "--kubeconfig", kubeconfig, "apply"]
-    if namespace:
+    if namespace and apply_namespace_flag:
         cmd.extend(["-n", namespace])
     if server_side:
         cmd.extend(["--server-side=true", "--validate=false"])
@@ -171,7 +172,8 @@ def _install(args, env: dict[str, str]) -> int:
             return rc
 
     rc = _apply(kubectl, kubeconfig, manifests, args.namespace,
-                args.server_side, args.retry_attempts, env)
+                not args.no_apply_namespace_flag, args.server_side,
+                args.retry_attempts, env)
     if rc != 0:
         return rc
 
@@ -221,6 +223,10 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--create-namespace", action="store_true",
                     help="Apply Namespace/<namespace> before manifests "
                          "(install mode). Idempotent.")
+    ap.add_argument("--no-apply-namespace-flag", action="store_true",
+                    help="Skip the `-n <namespace>` flag on the apply "
+                         "call. Required for multi-namespace YAML "
+                         "(kubectl rejects it when -n is set).")
     ap.add_argument("--server-side", action="store_true",
                     help="Pass --server-side=true --validate=false to apply.")
     ap.add_argument("--kubeconfig-env", default="KUBECONFIG")

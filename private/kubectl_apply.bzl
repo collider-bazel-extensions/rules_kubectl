@@ -35,6 +35,7 @@ def _impl(ctx):
             "{LAUNCHER}":         ctx.executable._launcher.short_path,
             "{KUBECONFIG_ENV}":   ctx.attr.kubeconfig_env,
             "{NAMESPACE}":        ctx.attr.namespace,
+            "{APPLY_NS_FLAG}":    "" if ctx.attr.apply_namespace_flag else "--no-apply-namespace-flag",
             "{CREATE_NS_FLAG}":   "--create-namespace" if ctx.attr.create_namespace else "",
             "{SERVER_SIDE_FLAG}": "--server-side" if ctx.attr.server_side else "",
             "{WAIT_TIMEOUT}":     ctx.attr.wait_timeout,
@@ -64,7 +65,23 @@ kubectl_apply = rule(
         "namespace": attr.string(
             doc = "Sets `--namespace` on the apply call. Per-resource " +
                   "namespaces hard-coded in the manifest take precedence; " +
-                  "this only affects resources without a namespace set.",
+                  "this only affects resources without a namespace set. " +
+                  "Also used as the default namespace for the wait " +
+                  "commands (Deployments / rollouts).",
+        ),
+        "apply_namespace_flag": attr.bool(
+            default = True,
+            doc = "Pass `-n <namespace>` to `kubectl apply`. Set to " +
+                  "`False` for **multi-namespace YAML** — manifests " +
+                  "where individual resources carry their own " +
+                  "`metadata.namespace` covering more than one " +
+                  "namespace, or a mix of namespaced + non-default " +
+                  "namespaces. kubectl rejects multi-namespace YAML " +
+                  "when `-n` is set (\"the namespace from the provided " +
+                  "object 'X' does not match the namespace 'Y'\"); " +
+                  "dropping the flag lets each resource's own " +
+                  "namespace stand. The `namespace` attribute is " +
+                  "still used for the wait commands.",
         ),
         "create_namespace": attr.bool(
             default = False,
