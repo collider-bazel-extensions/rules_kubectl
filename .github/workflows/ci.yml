@@ -37,7 +37,7 @@ jobs:
           if-no-files-found: ignore
 
   smoke:
-    # End-to-end: kind cluster (k8s 1.32) + kubectl_apply of a tiny
+    # End-to-end: kind cluster (k8s 1.35) + kubectl_apply of a tiny
     # Namespace+Deployment + assertion that the Deployment lands.
     name: smoke (ubuntu-latest, docker)
     runs-on: ubuntu-latest
