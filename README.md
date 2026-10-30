@@ -61,7 +61,7 @@ load("@rules_kubectl//:defs.bzl", "kubectl_apply", "kubectl_apply_health_check")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 # 1. The cluster.
-kind_cluster(name = "cluster", k8s_version = "1.32")
+kind_cluster(name = "cluster", k8s_version = "1.35")
 kind_health_check(name = "cluster_health", cluster = ":cluster")
 itest_service(name = "kind_svc", exe = ":cluster", health_check = ":cluster_health")
 
