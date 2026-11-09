@@ -28,6 +28,7 @@ itest can manage), distinct from the build-time CLI wrappers
 | 11 | MODULE deps (consumer-visible) | `bazel_skylib`, `platforms`, `rules_python` (the launcher is python). `rules_kind`/`rules_itest`/`rules_shell` are dev-only for the smoke. | Sibling-family |
 | 12 | Naming | snake_case rules, `MixedCaseInfo` providers (none in v0.1; could add a `KubectlApplyInfo` later if downstream rules want introspection), `UPPER_SNAKE` constants. | All siblings |
 | 13 | Default test tags | Smoke is `["manual", "no-sandbox", "requires-network"]`. | rules_kind precedent |
+| 14 | Release archive contents | `tests/` is `export-ignore` (`.gitattributes`): its packages load the dev-only `rules_itest` / `rules_kind` / `rules_shell`, which made `@rules_kubectl//...` unloadable for consumers (#5). `REPO.bazel` `ignore_directories` was rejected because it also hides `tests/` from this repo's own `bazel test //tests/...`. A `git_override` clone still contains `tests/`. CI's `consumer` job queries `//...` from the `git archive` of the commit. | #5 |
 
 ## Notes
 

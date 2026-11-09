@@ -36,6 +36,32 @@ jobs:
           path: bazel-testlogs/
           if-no-files-found: ignore
 
+  consumer:
+    # The release archive (git archive honours .gitattributes export-ignore,
+    # as GitHub's tag tarballs do) must load with //... for a consumer (#5).
+    name: consumer query (ubuntu-latest, git archive)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          repository-cache: true
+
+      - name: bazel query @rules_kubectl//... from the archive
+        run: |
+          set -euo pipefail
+          src="$RUNNER_TEMP/rules_kubectl"; c="$RUNNER_TEMP/consumer"
+          mkdir -p "$src" "$c"
+          git archive HEAD | tar -x -C "$src"
+          test ! -e "$src/tests"
+          cp .bazelversion "$c/" 2>/dev/null || true
+          touch "$c/BUILD.bazel"
+          printf 'module(name = "consumer")\nbazel_dep(name = "rules_kubectl")\nlocal_path_override(module_name = "rules_kubectl", path = "%s")\n' "$src" > "$c/MODULE.bazel"
+          cd "$c"
+          bazel query @rules_kubectl//...
+          bazel build @rules_kubectl//...
+
   smoke:
     # End-to-end: kind cluster (k8s 1.35) + kubectl_apply of a tiny
     # Namespace+Deployment + assertion that the Deployment lands.

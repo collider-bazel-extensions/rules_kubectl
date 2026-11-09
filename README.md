@@ -43,12 +43,18 @@ kubectl can run. Validated on Linux x86\_64 in CI.
 ## Installation
 
 ```python
-bazel_dep(name = "rules_kubectl", version = "0.2.0")
+bazel_dep(name = "rules_kubectl", version = "0.2.1")
 ```
 
 That's it — no extension, no toolchain registration, no `use_repo`.
 `rules_kubectl` is **Bzlmod-only** in v0.1. Until it lands in BCR,
 consume via `archive_override` or a git pin pointing at a tag.
+
+The release archive (the tag tarball, e.g. `archive/refs/tags/v0.2.1.tar.gz`)
+leaves out `tests/`, whose packages load dev-only modules, so
+`bazel query @rules_kubectl//...` works for consumers. A `git_override`
+clone still contains `tests/`; query `@rules_kubectl//:all` or
+`@rules_kubectl//private/...` instead.
 
 ---
 
@@ -233,6 +239,9 @@ PRs welcome. Conventions match the sibling rule sets:
 
 - New rules need an analysis test in `tests/analysis_tests.bzl`.
 - `MODULE.bazel.lock` is intentionally not committed.
+- `tests/` is `export-ignore`d (`.gitattributes`), so it may load dev-only
+  modules; nothing outside `tests/` may. CI's `consumer` job checks that the
+  `git archive` of the commit loads with `//...` for a consumer.
 
 ### Help wanted: macOS validation
 
