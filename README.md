@@ -249,3 +249,11 @@ The launcher is platform-independent (bash + python3 + kubectl), but no
 one has run the smoke test on Darwin. A pasted log from a green
 `bazel test //tests:smoke_test` on macOS would unblock the macOS
 support claim.
+
+---
+
+## Requesting a new rules package
+
+Want Bazel rules for another tool or service?
+[Request a rules package](https://github.com/collider-bazel-extensions/.github/issues/new?template=request-a-rules-package.yml).
+The [organization page](https://github.com/collider-bazel-extensions) lists every package.
