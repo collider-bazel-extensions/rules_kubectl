@@ -43,7 +43,7 @@ kubectl can run. Validated on Linux x86\_64 in CI.
 ## Installation
 
 ```python
-bazel_dep(name = "rules_kubectl", version = "0.2.1")
+bazel_dep(name = "rules_kubectl", version = "0.2.2")
 ```
 
 That's it — no extension, no toolchain registration, no `use_repo`.
@@ -257,3 +257,7 @@ support claim.
 Want Bazel rules for another tool or service?
 [Request a rules package](https://github.com/collider-bazel-extensions/.github/issues/new?template=request-a-rules-package.yml).
 The [organization page](https://github.com/collider-bazel-extensions) lists every package.
+
+## License
+
+[Apache License 2.0](LICENSE) (SPDX: `Apache-2.0`).
